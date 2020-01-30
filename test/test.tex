@@ -1,0 +1,89 @@
+\documentclass{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[breaklinks]{hyperref}
+\usepackage{dvibreaklinks}
+
+\makeatletter
+\ps@headings
+\markboth{test}{test}
+\parindent=0pt
+\makeatother
+
+\begin{document}
+
+\section{hypertarget, hyperref, .. }
+\label{sec1}
+
+\hypertarget{h2}{hypertarget HERE}
+
+some text...
+
+\hyperlink{h2}{%
+very very very very very very 
+very very very very very very very very very very 
+very very very very very very very very very very very very 
+very very very very very very very very very very long link hypertarget h2}
+
+some text...
+
+\hyperref[sec1]{Link to sec1. very very very very very very 
+very very very very very very very very very very 
+very very very very very very very very very very very very 
+very very very very very very very very very very long link}
+
+some text...
+
+\href{www.texthref.lt}{very very very very very very 
+very very very very very very very very very very 
+very very very very very very very very very very very very 
+very very very very very very very very very very long link
+} 
+
+HERE is footnote \footnote{Normal footnote with par 
+Normal footnote with par 
+Normal footnote with par 
+Normal footnote with par
+\href{www.footnotebreak.lt}{very very very very very very 
+very very very very very very very very very very 
+very very very very very very very very very very very very 
+very very very very very very very very very very long link
+} 
+Normal footnote with par}
+
+\section{link in tabular}
+\begin{tabular*}{5cm}{|p{4cm}|}
+\href{www.tabularbreak.lt}{very very very very very very 
+very very very very very very very very very very long link
+} 
+\end{tabular*}
+
+\section{htmladdnormallink}
+\htmladdnormallink{A very very very very very very 
+very very very very very very very very very very 
+very very very very very very very very very very very very 
+very very very very very very very very very very long dummy URL}{www.htmladdnormallink.lt} 
+
+\section{nolinkurl}
+\nolinkurl{A very very very very very very 
+very very very very very very very very very very long nolinkurl}
+
+\section{page break link}
+
+\href{www.pagebreak.lt}{Break page very very very very very very 
+very very very very very very very very very very 
+very very very very very very very very very very very very 
+very very very very very very very very very very 
+very very very very very very very very very very very very 
+very very very very very very very very very very 
+very very very very very very very very very very very very 
+very very very very very very very very very very long link
+} 
+
+\begin{figure}
+\fbox{some figure}
+\caption{Floats and headings are properly escaped from links} 
+\end{figure}
+\end{document}
+
+%

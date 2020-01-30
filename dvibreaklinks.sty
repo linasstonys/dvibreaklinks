@@ -1,0 +1,209 @@
+\ProvidesFile{breaklinks-pdfmark.def}[2019/02/27 v0.01, Hyperref link break definitions for pdfmark specials]
+
+% save original link commands
+\let\orig@hyper@linkend\hyper@linkend
+\let\orig@hyper@linkstart\hyper@linkstart
+\let\orig@pdf@rect\pdf@rect
+\def\setOrigHyperlinks{%
+    \let\hyper@linkend\orig@hyper@linkend
+    \let\hyper@linkstart\orig@hyper@linkstart
+    \let\pdf@rect\orig@pdf@rect
+    }
+
+% this could enabled break links without hyperref option    
+%\Hy@breaklinkstrue
+
+\def\pdf@bbox{pdf@llx pdf@lly pdf@urx pdf@ury}
+
+\@ifundefined{linkbaselineskip}{%
+  \newdimen\linkbaselineskip
+  \global\linkbaselineskip=12\p@
+  }{}
+  
+\g@addto@macro\Hy@FirstPageHook{%
+  \headerps@out{%
+    % link border thikness
+    /HyperBorder {0.1 PDFToDvips} def%
+    % modyfied /H.L to make link with  \linkbaselineskip height
+    /H.LEdt {%
+      dup 0 le { \strip@pt@and@otherjunk\linkbaselineskip } if
+      2 sub dup%
+      /HyperBasePt exch def %
+      PDFToDvips /HyperBaseDvips exch def %
+      currentpoint %
+      HyperBaseDvips sub /pdf@ury exch def%
+      /pdf@urx exch def%
+    } def%
+  }}
+
+\def\hyper@linkstart@inner@startlink{%
+    \pdf@rect@inner@startlink
+    }
+
+\def\hyper@linkstart@inner@endlink{%
+  \literalps@out{\strip@pt@and@otherjunk\baselineskip\space H.LEdt}%
+  \edef\Hy@tempcolor{\csname @\hyper@currentlinktype bordercolor\endcsname}%
+  \pdfmark{%
+    pdfmark=/ANN,%
+    linktype=link,%
+    Subtype=/Link,
+    Dest=\hyper@currentanchor,%
+    AcroHighlight=\@pdfhighlight,%
+    Border=\@pdfborder,%
+    Color=\Hy@tempcolor,%
+    Rect=\pdf@bbox%
+    % Raw=H.B%   orig
+    }%
+  }
+
+% pdfmark.def modification start
+\def\hyper@linkstart#1#2{%
+  \Hy@VerboseLinkStart{#1}{#2}%
+  \ifHy@breaklinks
+  \else
+    \leavevmode
+    \ifmmode
+      \def\Hy@LinkMath{$}%
+    \else
+      \let\Hy@LinkMath\ltx@empty
+    \fi
+    \Hy@SaveSpaceFactor
+    \hbox\bgroup
+    \Hy@RestoreSpaceFactor
+    \Hy@LinkMath
+  \fi
+  \expandafter\Hy@colorlink\csname @#1color\endcsname
+  \literalps@out{H.S}%
+  \Hy@AllowHyphens
+  \xdef\hyper@currentanchor{#2}%
+  \gdef\hyper@currentlinktype{#1}%
+  %% open/close links in a broken lines
+  \ifHy@breaklinks
+    \localleftbox{\hyper@linkstart@inner@startlink}%
+    \localrightbox{\hyper@linkstart@inner@endlink}%
+  \fi
+}
+
+\def\hyper@linkend{%
+  \literalps@out{\strip@pt@and@otherjunk\baselineskip\space H.LEdt}%
+  \ltx@IfUndefined{@\hyper@currentlinktype bordercolor}{%
+    \let\Hy@tempcolor\relax
+  }{%
+    \edef\Hy@tempcolor{%
+      \csname @\hyper@currentlinktype bordercolor\endcsname
+    }%
+  }%
+  \pdfmark{%
+    pdfmark=/ANN,%
+    linktype=link,%
+    Subtype=/Link,%
+    PDFAFlags=4,%
+    Dest=\hyper@currentanchor,%
+    AcroHighlight=\@pdfhighlight,%
+    Border=\@pdfborder,%
+    BorderStyle=\@pdfborderstyle,%
+    Color=\Hy@tempcolor,%
+    Rect=\pdf@bbox%
+    % Raw=H.B% 
+  }%
+  \Hy@endcolorlink
+  \ifHy@breaklinks
+  \else
+    \Hy@LinkMath
+    \Hy@SaveSpaceFactor
+    \egroup
+    \Hy@RestoreSpaceFactor
+  \fi
+}
+
+\def\pdf@rect@inner@startlink{%
+  \literalps@out{H.S}%
+  }
+
+\def\pdf@rect@inner@endlink{%
+  \literalps@out{\strip@pt@and@otherjunk\baselineskip\space H.LEdt}% 
+  \literalps@out{[\the\pdf@toks\space H.B \pdf@type\space pdfmark}%
+  }
+  
+\def\pdf@rect#1{%
+  \begingroup
+    \chardef\x=1 %
+    \def\Hy@temp{#1}%
+    \ifx\Hy@temp\ltx@empty
+      \chardef\x=0 %
+    \else
+      \def\y{\anchor@spot}%
+      \ifx\Hy@temp\y
+        \def\y{\relax}%
+        \ifx\anchor@spot\y
+          \chardef\x=0 %
+        \fi
+      \fi
+    \fi
+  \expandafter\endgroup
+  \ifcase\x
+    \literalps@out{H.S}%
+    \literalps@out{H.R}%
+  \else
+    \leavevmode
+    \Hy@SaveSpaceFactor
+    \ifmmode
+      \def\Hy@LinkMath{$}%
+    \else
+      \let\Hy@LinkMath\ltx@empty
+    \fi
+    \ifHy@breaklinks
+      \Hy@setouterhbox\pdf@box{%
+        \Hy@RestoreSpaceFactor
+        \Hy@LinkMath
+        \Hy@AllowHyphens #1\Hy@xspace@end
+        \Hy@LinkMath
+        \Hy@SaveSpaceFactor
+      }%
+    \else
+      \sbox\pdf@box{%
+        \Hy@RestoreSpaceFactor
+        \Hy@LinkMath
+        #1\Hy@xspace@end
+        \Hy@LinkMath
+        \Hy@SaveSpaceFactor
+      }%
+    \fi
+    \dimen@\ht\pdf@box
+    \ifdim\dp\pdf@box=\z@
+      \literalps@out{H.S}%
+    \else
+      \lower\dp\pdf@box\hbox{\literalps@out{H.S}}%
+    \fi
+    %% open/close links in a broken lines
+    \ifHy@breaklinks
+      \localleftbox{\pdf@rect@inner@startlink}%
+      \localrightbox{\pdf@rect@inner@endlink}%
+    \fi
+    \ifHy@breaklinks
+        \Hy@RestoreSpaceFactor
+        \Hy@AllowHyphens #1\Hy@xspace@end
+        \Hy@SaveSpaceFactor      
+    \else
+      \expandafter\box\pdf@box
+    \fi
+    \ifHy@breaklinks
+        %% problem will be on bigger object then \linkbaselineskip
+        %% there need to add \Hy@breaklinksfalse and restore original link commands
+        \literalps@out{\strip@pt@and@otherjunk\baselineskip\space H.LEdt}%  
+    \else 
+        \ifdim\dimen@=\z@
+         \literalps@out{H.R}%
+        \else
+          \raise\dimen@\hbox{\literalps@out{H.R}}%
+        \fi
+    \fi
+    \Hy@RestoreSpaceFactor
+  \fi
+  \ifx\pdf@type\Hy@DEST
+  \else
+    \pdf@addtoksx{H.B}%
+  \fi
+}
+
+\endinput
