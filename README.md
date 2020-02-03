@@ -1,6 +1,17 @@
 # dvibreaklinks
-Automated Tex document links break using DVI->PS-PDF (with Hyperref)
+Automated Tex document links break using DVI->PS->PDF workflow.
 
-![sample](test_01.png)
+# Usage
+Load `dvibreaklinks` after hyperref and make sure you've added `breaklinks` option to hyperref.
 
-![sample2](test_02.png)
+```
+\usepackage[breaklinks]{hyperref}
+\usepackage{dvibreaklinks}
+```
+
+# Limitations 
+It will work only with luatex engine because link insertion is based on `\localleftbox` and `\localrightbox`.
+
+# Example
+![sample](example.png)
+
