@@ -1,4 +1,5 @@
-\ProvidesFile{breaklinks-pdfmark.def}[2019/02/27 v0.01, Hyperref link break definitions for pdfmark specials]
+%% this is an extension to pdfmark.def file.
+\ProvidesPackage{dvibreaklinks}[2019/02/27 v0.01, Hyperref link break definitions for pdfmark specials]
 
 % save original link commands
 \let\orig@hyper@linkend\hyper@linkend
@@ -10,7 +11,7 @@
     \let\pdf@rect\orig@pdf@rect
     }
 
-% this could enabled break links without hyperref option    
+% this could enabled break links without hyperref `breaklinks` option    
 %\Hy@breaklinkstrue
 
 \def\pdf@bbox{pdf@llx pdf@lly pdf@urx pdf@ury}
